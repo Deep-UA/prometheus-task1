@@ -1,0 +1,17 @@
+services:
+  app:
+    image: eclipse-temurin:17-jre
+    command: ["java", "-jar", "/app/SimpleApp-1.0-SNAPSHOT.jar"]
+    volumes:
+      - ./app:/app:ro
+    ports:
+      - "9090:9090" # Prometheus UI (published here because prometheus shares this container's network)
+
+  prometheus:
+    image: prom/prometheus:latest
+    # Share the app's network so "localhost:8080" in prometheus.yml reaches the app.
+    network_mode: "service:app"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - app
